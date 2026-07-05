@@ -12,3 +12,6 @@ addons/force_feedback/bin/*.lib
 .sconsign.dblite
 __pycache__/
 compile_commands.json
+
+# Godot's hot-reload copies of in-use DLLs.
+~*.dll
