@@ -80,7 +80,7 @@ Prerequisites: Python 3 + SCons (`pip install scons`), a C++17 compiler
 (MSVC Build Tools on Windows), git.
 
 ```sh
-git clone --recurse-submodules https://github.com/<you>/godot-force-feedback
+git clone --recurse-submodules https://github.com/drachbar/godot-force-feedback
 cd godot-force-feedback
 # Windows: download SDL3-devel-3.x.x-VC.zip from
 # https://github.com/libsdl-org/SDL/releases and extract include/ and
