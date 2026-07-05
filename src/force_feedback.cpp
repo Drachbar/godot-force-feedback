@@ -308,6 +308,21 @@ void ForceFeedback::set_damper(float p_strength) {
 	update_condition_effect(damper_id, SDL_HAPTIC_DAMPER, p_strength, 1.0f, last_damper, damper_failed);
 }
 
+void ForceFeedback::keep_alive() {
+	if (haptic == nullptr) {
+		return;
+	}
+	if (constant_id >= 0) {
+		constant_running = SDL_RunHapticEffect(haptic, constant_id, 1);
+	}
+	if (spring_id >= 0 && last_spring > 0.0f) {
+		SDL_RunHapticEffect(haptic, spring_id, 1);
+	}
+	if (damper_id >= 0 && last_damper > 0.0f) {
+		SDL_RunHapticEffect(haptic, damper_id, 1);
+	}
+}
+
 void ForceFeedback::stop_all() {
 	if (haptic == nullptr) {
 		return;
@@ -336,5 +351,6 @@ void ForceFeedback::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constant_force", "value"), &ForceFeedback::set_constant_force);
 	ClassDB::bind_method(D_METHOD("set_spring", "strength", "saturation"), &ForceFeedback::set_spring, DEFVAL(1.0f));
 	ClassDB::bind_method(D_METHOD("set_damper", "strength"), &ForceFeedback::set_damper);
+	ClassDB::bind_method(D_METHOD("keep_alive"), &ForceFeedback::keep_alive);
 	ClassDB::bind_method(D_METHOD("stop_all"), &ForceFeedback::stop_all);
 }

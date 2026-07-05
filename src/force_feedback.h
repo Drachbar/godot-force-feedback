@@ -69,6 +69,7 @@ public:
 	void set_constant_force(float p_value);
 	void set_spring(float p_strength, float p_saturation);
 	void set_damper(float p_strength);
+	void keep_alive();
 	void stop_all();
 };
 
