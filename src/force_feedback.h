@@ -25,6 +25,11 @@ class ForceFeedback : public RefCounted {
 	int spring_id = -1;
 	int damper_id = -1;
 	bool constant_running = false;
+	// Set when the driver rejects effect creation, so we don't retry (and
+	// spam warnings) every tick — some wheels advertise features they can't
+	// actually create.
+	bool spring_failed = false;
+	bool damper_failed = false;
 	// Cached last-sent values so redundant driver updates are skipped.
 	float last_constant = 999.0f;
 	float last_spring = -1.0f;
@@ -33,7 +38,7 @@ class ForceFeedback : public RefCounted {
 
 	static bool ensure_sdl();
 	bool create_constant_effect();
-	bool update_condition_effect(int &effect_id, Uint16 effect_type, float strength, float saturation, float &last_strength);
+	bool update_condition_effect(int &effect_id, Uint16 effect_type, float strength, float saturation, float &last_strength, bool &failed);
 
 protected:
 	static void _bind_methods();

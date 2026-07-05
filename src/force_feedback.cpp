@@ -135,6 +135,8 @@ void ForceFeedback::close() {
 	spring_id = -1;
 	damper_id = -1;
 	constant_running = false;
+	spring_failed = false;
+	damper_failed = false;
 	last_constant = 999.0f;
 	last_spring = -1.0f;
 	last_spring_saturation = -1.0f;
@@ -229,8 +231,8 @@ void ForceFeedback::set_constant_force(float p_value) {
 	}
 }
 
-bool ForceFeedback::update_condition_effect(int &effect_id, Uint16 effect_type, float strength, float saturation, float &last_strength) {
-	if (haptic == nullptr) {
+bool ForceFeedback::update_condition_effect(int &effect_id, Uint16 effect_type, float strength, float saturation, float &last_strength, bool &failed) {
+	if (haptic == nullptr || failed) {
 		return false;
 	}
 	strength = std::isfinite(strength) ? CLAMP(strength, 0.0f, 1.0f) : 0.0f;
@@ -248,6 +250,7 @@ bool ForceFeedback::update_condition_effect(int &effect_id, Uint16 effect_type, 
 	SDL_HapticEffect effect;
 	std::memset(&effect, 0, sizeof(effect));
 	effect.type = effect_type;
+	effect.condition.direction.type = SDL_HAPTIC_STEERING_AXIS;
 	effect.condition.length = SDL_HAPTIC_INFINITY;
 	const Sint16 coeff = (Sint16)(strength * 32767.0f);
 	const Uint16 sat = (Uint16)(saturation * 65535.0f);
@@ -261,7 +264,17 @@ bool ForceFeedback::update_condition_effect(int &effect_id, Uint16 effect_type, 
 	if (effect_id < 0) {
 		effect_id = SDL_CreateHapticEffect(haptic, &effect);
 		if (effect_id < 0) {
-			UtilityFunctions::push_warning("ForceFeedback: creating condition effect failed: ", SDL_GetError());
+			// Retry with a cartesian direction — some drivers reject the
+			// steering-axis direction type.
+			effect.condition.direction.type = SDL_HAPTIC_CARTESIAN;
+			effect.condition.direction.dir[0] = 1;
+			effect_id = SDL_CreateHapticEffect(haptic, &effect);
+		}
+		if (effect_id < 0) {
+			// Give up for good: the device advertises the feature but can't
+			// create the effect. Warn once instead of every tick.
+			failed = true;
+			UtilityFunctions::push_warning("ForceFeedback: creating condition effect failed (disabled): ", SDL_GetError());
 			return false;
 		}
 		was_stopped = true;
@@ -285,14 +298,14 @@ void ForceFeedback::set_spring(float p_strength, float p_saturation) {
 		last_spring = -1.0f;
 		last_spring_saturation = p_saturation;
 	}
-	update_condition_effect(spring_id, SDL_HAPTIC_SPRING, p_strength, p_saturation, last_spring);
+	update_condition_effect(spring_id, SDL_HAPTIC_SPRING, p_strength, p_saturation, last_spring, spring_failed);
 }
 
 void ForceFeedback::set_damper(float p_strength) {
 	if (!supports_damper()) {
 		return;
 	}
-	update_condition_effect(damper_id, SDL_HAPTIC_DAMPER, p_strength, 1.0f, last_damper);
+	update_condition_effect(damper_id, SDL_HAPTIC_DAMPER, p_strength, 1.0f, last_damper, damper_failed);
 }
 
 void ForceFeedback::stop_all() {
