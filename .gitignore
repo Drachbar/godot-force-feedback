@@ -1,0 +1,14 @@
+# Third-party SDL3 development package (see README for how to fetch it).
+thirdparty/
+
+# Build artifacts.
+*.obj
+*.os
+*.o
+*.pdb
+*.exp
+*.ilk
+addons/force_feedback/bin/*.lib
+.sconsign.dblite
+__pycache__/
+compile_commands.json
