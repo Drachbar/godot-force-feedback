@@ -7,8 +7,13 @@ compatibility_minimum = "4.5"
 
 windows.debug.x86_64 = "res://addons/force_feedback/bin/ffb_keepalive.windows.template_debug.x86_64.dll"
 windows.release.x86_64 = "res://addons/force_feedback/bin/ffb_keepalive.windows.template_release.x86_64.dll"
+linux.debug.x86_64 = "res://addons/force_feedback/bin/libffb.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/force_feedback/bin/libffb.linux.template_release.x86_64.so"
 
 [dependencies]
 
 windows.debug.x86_64 = { "res://addons/force_feedback/bin/SDL3.dll": "" }
 windows.release.x86_64 = { "res://addons/force_feedback/bin/SDL3.dll": "" }
+linux.debug.x86_64 = { "res://addons/force_feedback/bin/libSDL3.so": "" }
+linux.release.x86_64 = { "res://addons/force_feedback/bin/libSDL3.so": "" }
+
